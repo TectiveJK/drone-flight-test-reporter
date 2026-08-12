@@ -1,9 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-  exportPDF: (html) => ipcRenderer.invoke('export-pdf', html),
-  saveMarkdown: (markdown) => ipcRenderer.invoke('save-markdown', markdown),
-  saveFlightData: (data) => ipcRenderer.invoke('save-flight-data', data),
-  selectAttachments: () => ipcRenderer.invoke('select-attachments'),
-  selectFile: (filters) => ipcRenderer.invoke('select-file', filters)
+  exportPDF: (html, name) => ipcRenderer.invoke('export-pdf', html, name),
+  saveMarkdown: (markdown, name) => ipcRenderer.invoke('save-markdown', markdown, name),
+  saveJSON: (data, name) => ipcRenderer.invoke('save-json', data, name),
+  selectFiles: (options) => ipcRenderer.invoke('select-files', options)
 });
