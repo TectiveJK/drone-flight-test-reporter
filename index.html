@@ -2,95 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Drone Flight Test Reporter</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>Drone Flight Test Reporter</h1>
-      <p>Professional reports, telemetry logging, attachments and voice-assisted notes.</p>
-    </div>
+  <header class="app-header">
+    <div><h1>Drone Flight Test Reporter</h1><p>Professional multi-flight test reporting for Linux</p></div>
+    <div class="header-actions"><button id="newReportButton" class="secondary">New Report</button><button id="saveDataButton">Save Report JSON</button></div>
   </header>
-
-  <main>
-    <section class="panel form-panel">
-      <div class="section-header">
-        <h2>Flight Record</h2>
-      </div>
-
-      <form id="flight-form">
-        <div class="grid-2">
-          <label>Flight / Mission ID<input id="flightId" type="text" placeholder="#015" /></label>
-          <label>Date & Time<input id="dateTime" type="datetime-local" /></label>
-        </div>
-
-        <div class="grid-2">
-          <label>Drone / Aircraft<input id="droneType" type="text" placeholder="e.g. Heavy-Lift Quadcopter" /></label>
-          <label>Battery ID<input id="batteryId" type="text" placeholder="e.g. BATT-132" /></label>
-        </div>
-
-        <label>Firmware Version<input id="firmwareVersion" type="text" placeholder="e.g. PX4 v1.14.0" /></label>
-        <label>Mission Performed<textarea id="missionPerformed" rows="2" placeholder="Autonomous corridor test, obstacle avoidance, etc."></textarea></label>
-        <label>Flight Modes<textarea id="flightModes" rows="2" placeholder="Auto, Loiter, RTL, Manual"></textarea></label>
-
-        <div class="grid-2">
-          <label>GPS / Altitude / Speed<textarea id="telemetrySummary" rows="3" placeholder="GPS lock achieved, 120m altitude, 12 m/s speed..."></textarea></label>
-          <label>Anomalies / Bugs<textarea id="anomalies" rows="3" placeholder="Unexpected loiter, return-to-home, sensor glitch..."></textarea></label>
-        </div>
-
-        <label>Jira Ticket Links<input id="jiraTickets" type="text" placeholder="DRONE-123, BUG-456, https://jira.example.com/..." /></label>
-
-        <div class="file-selection-row">
-          <div class="file-select-card">
-            <label>Flight Log File</label>
-            <div class="file-path" id="flightLogPathDisplay">No flight log selected.</div>
-            <button type="button" id="selectFlightLogButton">Select Flight Log</button>
-          </div>
-          <div class="file-select-card">
-            <label>Wireshark Capture</label>
-            <div class="file-path" id="captureFilePathDisplay">No capture selected.</div>
-            <button type="button" id="selectCaptureButton">Select Capture File</button>
-          </div>
-        </div>
-
-        <div class="attachment-section">
-          <label>Attachments</label>
-          <div id="attachmentList" class="attachments-list">No attachments added.</div>
-          <button type="button" id="addAttachmentButton">Add Attachments</button>
-        </div>
-
-        <label>Operator Notes<textarea id="operatorNotes" rows="4" placeholder="Speak or type post-flight notes."></textarea></label>
-
-        <div class="button-row">
-          <button type="button" id="startVoiceButton">Start Voice Note</button>
-          <button type="button" id="stopVoiceButton" disabled>Stop Voice Note</button>
-          <button type="button" id="generateReportButton">Generate Report</button>
-          <button type="button" id="saveDataButton">Save Flight Data</button>
-          <button type="button" id="exportMarkdownButton">Export Markdown</button>
-          <button type="button" id="exportPdfButton">Export PDF</button>
-        </div>
-
-        <div class="voice-status" id="voiceStatus">Voice transcription is not running.</div>
-      </form>
-    </section>
-
-    <section class="panel report-panel">
-      <div class="section-header">
-        <h2>Generated Report</h2>
-      </div>
-      <div id="reportPreview" class="report-preview">
-        <p>No report generated yet. Fill in the flight record and click <strong>Generate Report</strong>.</p>
-      </div>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <section class="panel">
+        <div class="section-header"><h2>Test Report</h2></div>
+        <label>Test ID<input id="testId" placeholder="FT-2026-0015" /></label>
+        <label>Project / Customer<input id="project" placeholder="Autonomous Mission Test" /></label>
+        <label>Test Objective<textarea id="objective" rows="3" placeholder="Describe what this test campaign is intended to verify."></textarea></label>
+        <label>Location<input id="location" placeholder="Test site / airfield" /></label>
+        <div class="grid-2"><label>Operator<input id="operator" /></label><label>Observer<input id="observer" /></label></div>
+        <div class="grid-2"><label>UAV / Aircraft<input id="droneType" placeholder="Refly 015" /></label><label>Serial Number<input id="serialNumber" /></label></div>
+        <label>Flight Controller / Autopilot<input id="flightController" placeholder="PX4 / ArduPilot" /></label>
+        <label>Ground Control Software<input id="groundControl" placeholder="QGroundControl / Mission Planner" /></label>
+        <label>Firmware<input id="firmwareVersion" /></label>
+        <label>General Weather / Environment<textarea id="weather" rows="2" placeholder="Wind, temperature, visibility, conditions..."></textarea></label>
+      </section>
+      <section class="panel flights-panel">
+        <div class="section-header"><h2>Flights <span id="flightCount" class="badge">0</span></h2><button id="addFlightButton">+ Add Flight</button></div>
+        <div id="flightList" class="flight-list"></div>
+      </section>
+    </aside>
+    <section class="workspace">
+      <section class="panel flight-editor">
+        <div class="section-header"><div><h2 id="flightTitle">Flight 01</h2><p class="muted">Flight-specific information</p></div><select id="flightResult" class="result-select"><option>Pending</option><option>Pass</option><option>Pass with observations</option><option>Fail</option><option>Aborted</option></select></div>
+        <div class="grid-2"><label>Flight Date & Time<input id="flightDateTime" type="datetime-local" /></label><label>Battery ID<input id="batteryId" placeholder="BATT-132" /></label></div>
+        <div class="grid-3"><label>Mission ID<input id="missionId" /></label><label>Flight Duration<input id="duration" placeholder="12:34" /></label><label>Flight Modes<input id="flightModes" placeholder="Mission, RTL, Loiter" /></label></div>
+        <label>Mission Performed<textarea id="missionPerformed" rows="3" placeholder="Describe the mission performed during this flight."></textarea></label>
+        <label>Telemetry Summary<textarea id="telemetrySummary" rows="3" placeholder="GPS, altitude, speed, battery, relevant telemetry..."></textarea></label>
+        <div class="grid-2"><label>Anomalies / Bugs<textarea id="anomalies" rows="4" placeholder="Unexpected behaviour, failures, deviations..."></textarea></label><label>Expected Behaviour<textarea id="expectedBehaviour" rows="4" placeholder="What should have happened?"></textarea></label></div>
+        <div class="grid-2"><label>Immediate Action<textarea id="immediateAction" rows="3" placeholder="RTL, abort, mode change, configuration change..."></textarea></label><label>Result / Findings<textarea id="findings" rows="3" placeholder="What was observed after the action?"></textarea></label></div>
+        <label>Operator Notes / Timeline<textarea id="operatorNotes" rows="5" placeholder="10:32 — Pre-flight checks completed&#10;10:35 — Takeoff&#10;10:39 — RTL triggered"></textarea></label>
+        <div class="file-grid"><div class="file-card"><strong>Flight Log</strong><span id="flightLogPathDisplay">Not selected</span><button type="button" id="selectFlightLogButton" class="secondary">Select Log</button></div><div class="file-card"><strong>Wireshark Capture</strong><span id="captureFilePathDisplay">Not selected</span><button type="button" id="selectCaptureButton" class="secondary">Select Capture</button></div></div>
+        <div class="attachment-section"><div class="section-header"><h3>Evidence & Attachments</h3><button type="button" id="addAttachmentButton" class="secondary">Add Files</button></div><div id="attachmentList" class="attachments-list">No evidence attached.</div></div>
+        <div class="toolbar"><button id="startVoiceButton" class="secondary">Start Voice Note</button><button id="stopVoiceButton" class="secondary" disabled>Stop Voice Note</button><span id="voiceStatus" class="status">Voice transcription idle.</span></div>
+      </section>
+      <section class="panel report-panel"><div class="section-header"><div><h2>Report Preview</h2><p class="muted">The report contains all flights in this test campaign.</p></div><div class="toolbar compact"><button id="generateReportButton">Generate Report</button><button id="exportMarkdownButton" class="secondary">Export Markdown</button><button id="exportPdfButton" class="secondary">Export PDF</button></div></div><div id="reportPreview" class="report-preview"><p>Add flights and generate the report.</p></div></section>
     </section>
   </main>
-
-  <footer>
-    <span>Prototype desktop app for drone flight-test logging.</span>
-  </footer>
-
+  <footer>Drone Flight Test Reporter • Linux-first • Local/offline reporting</footer>
   <script src="renderer.js"></script>
 </body>
 </html>
