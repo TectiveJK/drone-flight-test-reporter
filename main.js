@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -13,6 +13,29 @@ if (process.platform === 'linux' && app.isPackaged) {
 
 let mainWindow;
 
+function createEditMenu() {
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo', accelerator: 'CommandOrControl+Z' },
+        { role: 'redo', accelerator: 'CommandOrControl+Shift+Z' },
+        { type: 'separator' },
+        { role: 'cut', accelerator: 'CommandOrControl+X' },
+        { role: 'copy', accelerator: 'CommandOrControl+C' },
+        { role: 'paste', accelerator: 'CommandOrControl+V' },
+        { role: 'selectAll', accelerator: 'CommandOrControl+A' }
+      ]
+    }
+  ]));
+}
+
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
@@ -22,10 +45,29 @@ function createMainWindow() {
     backgroundColor: '#10141b',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false }
   });
+
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  // Provide the normal Linux right-click editing menu in text fields.
+  mainWindow.webContents.on('context-menu', (event, params) => {
+    if (!params.isEditable && !params.selectionText) return;
+
+    const menu = Menu.buildFromTemplate([
+      { role: 'undo', enabled: params.isEditable },
+      { role: 'redo', enabled: params.isEditable },
+      { type: 'separator' },
+      { role: 'cut', enabled: params.isEditable },
+      { role: 'copy', enabled: Boolean(params.selectionText) },
+      { role: 'paste', enabled: params.isEditable },
+      { role: 'selectAll', enabled: params.isEditable }
+    ]);
+
+    menu.popup({ window: mainWindow });
+  });
 }
 
 app.whenReady().then(() => {
+  createEditMenu();
   createMainWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createMainWindow(); });
 });
