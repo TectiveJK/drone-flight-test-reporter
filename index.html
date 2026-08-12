@@ -28,7 +28,23 @@
         <label>Test Objective<textarea id="objective" rows="3" placeholder="Describe what this test campaign is intended to verify."></textarea></label>
         <label>Location<input id="location" placeholder="Test site / airfield" /></label>
         <div class="grid-2"><label>Operator<input id="operator" /></label><label>Observer<input id="observer" /></label></div>
-        <div class="grid-2"><label>UAV / Aircraft<input id="droneType" placeholder="Refly 015" /></label><label>Serial Number<input id="serialNumber" /></label></div>
+        <div class="grid-2">
+          <label>UAV / Aircraft Category
+            <select id="droneCategory">
+              <option value="">Select category...</option>
+              <option>Fixed-Wing UAVs</option>
+              <option>Multirotor UAVs</option>
+              <option>Single-Rotor UAVs (Helicopter)</option>
+              <option>VTOL UAVs</option>
+              <option>Hybrid UAVs</option>
+              <option>Lighter-than-Air UAVs</option>
+              <option>Flapping-Wing / Ornithopter UAVs</option>
+              <option>Unconventional / Experimental UAVs</option>
+            </select>
+          </label>
+          <label>Specific Aircraft / Model<input id="droneModel" placeholder="e.g. DJI Matrice 30T" /></label>
+        </div>
+        <label>Serial Number<input id="serialNumber" /></label>
         <label>Flight Controller / Autopilot<input id="flightController" placeholder="PX4 / ArduPilot" /></label>
         <label>Ground Control Software<input id="groundControl" placeholder="QGroundControl / Mission Planner" /></label>
         <label>Firmware<input id="firmwareVersion" /></label>
