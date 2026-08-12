@@ -1,466 +1,81 @@
-const flightForm = document.getElementById('flight-form');
-const dateTime = document.getElementById('dateTime');
-const flightId = document.getElementById('flightId');
-const droneType = document.getElementById('droneType');
-const batteryId = document.getElementById('batteryId');
-const firmwareVersion = document.getElementById('firmwareVersion');
-const missionPerformed = document.getElementById('missionPerformed');
-const flightModes = document.getElementById('flightModes');
-const telemetrySummary = document.getElementById('telemetrySummary');
-const anomalies = document.getElementById('anomalies');
-const jiraTickets = document.getElementById('jiraTickets');
-const flightLogPathDisplay = document.getElementById('flightLogPathDisplay');
-const captureFilePathDisplay = document.getElementById('captureFilePathDisplay');
-const operatorNotes = document.getElementById('operatorNotes');
-const attachmentList = document.getElementById('attachmentList');
-const addAttachmentButton = document.getElementById('addAttachmentButton');
-const selectFlightLogButton = document.getElementById('selectFlightLogButton');
-const selectCaptureButton = document.getElementById('selectCaptureButton');
-const reportPreview = document.getElementById('reportPreview');
-const startVoiceButton = document.getElementById('startVoiceButton');
-const stopVoiceButton = document.getElementById('stopVoiceButton');
-const voiceStatus = document.getElementById('voiceStatus');
-const generateReportButton = document.getElementById('generateReportButton');
-const saveDataButton = document.getElementById('saveDataButton');
-const exportMarkdownButton = document.getElementById('exportMarkdownButton');
-const exportPdfButton = document.getElementById('exportPdfButton');
+const $ = (id) => document.getElementById(id);
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const sharedFields = ['testId','project','objective','location','operator','observer','droneType','serialNumber','flightController','groundControl','firmwareVersion','weather'];
+const flightFields = ['flightDateTime','batteryId','missionId','duration','flightModes','missionPerformed','telemetrySummary','anomalies','expectedBehaviour','immediateAction','findings','operatorNotes','flightResult'];
+
+const state = { report: {}, flights: [], activeFlight: 0, attachments: [], flightLogPath: '', captureFilePath: [] };
 let recognition = null;
-let voiceActive = false;
-let attachments = [];
-let flightLogPath = '';
-let captureFilePath = '';
 
-function setDateTimeNow() {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  const local = new Date(now.getTime() - offset * 60 * 1000);
-  dateTime.value = local.toISOString().slice(0, 16);
+function esc(value = '') {
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function sanitizeText(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+function nowLocal() {
+  const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16);
 }
-
-function normalizeTimeString(timeString, meridiem) {
-  if (!timeString) return timeString;
-  let [hours, minutes] = timeString.split(':').map((part) => parseInt(part, 10));
-  if (meridiem) {
-    const normalized = meridiem.toLowerCase();
-    if (normalized === 'pm' && hours < 12) hours += 12;
-    if (normalized === 'am' && hours === 12) hours = 0;
-  }
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+function newFlight() {
+  return { id: crypto.randomUUID(), flightNumber: state.flights.length + 1, flightDateTime: nowLocal(), batteryId:'', missionId:'', duration:'', flightModes:'', missionPerformed:'', telemetrySummary:'', anomalies:'', expectedBehaviour:'', immediateAction:'', findings:'', operatorNotes:'', flightResult:'Pending', flightLogPath:'', captureFilePath:'', attachments:[] };
 }
-
-function extractTimelineEntries(text) {
-  const lines = text.split(/\n+/).filter((line) => line.trim());
-  const entries = [];
-
-  lines.forEach((line) => {
-    const cleaned = line.trim();
-    const timeMatch = cleaned.match(/\b(?:at\s*)?(\d{1,2}:\d{2})(?:\s*(am|pm))?\b/i);
-    let timestamp = null;
-    let note = cleaned;
-
-    if (timeMatch) {
-      timestamp = normalizeTimeString(timeMatch[1], timeMatch[2]);
-      note = cleaned.replace(timeMatch[0], '').trim();
-      note = note.replace(/^[:\-–—]+/, '').trim();
-    }
-
-    if (!note) {
-      note = cleaned;
-    }
-
-    entries.push({ timestamp, note });
-  });
-
-  return entries;
+function readShared() { sharedFields.forEach(k => state.report[k] = $(k).value.trim()); }
+function writeShared() { sharedFields.forEach(k => { $(k).value = state.report[k] || ''; }); }
+function readFlight() {
+  const f = state.flights[state.activeFlight]; if (!f) return;
+  flightFields.forEach(k => f[k] = $(k).value);
+  f.flightLogPath = state.flightLogPath; f.captureFilePath = state.captureFilePath; f.attachments = [...state.attachments];
 }
-
-function buildAttachmentList(data) {
-  if (!data.attachments?.length) {
-    return '<p>No attachments included.</p>';
-  }
-
-  return `<ul>${data.attachments
-    .map((attachment) => `<li>${sanitizeText(attachment)}</li>`)
-    .join('')}</ul>`;
+function writeFlight() {
+  const f = state.flights[state.activeFlight]; if (!f) return;
+  flightFields.forEach(k => { $(k).value = f[k] ?? ''; });
+  state.flightLogPath = f.flightLogPath || ''; state.captureFilePath = f.captureFilePath || ''; state.attachments = [...(f.attachments || [])];
+  $('flightTitle').textContent = `Flight ${String(f.flightNumber).padStart(2,'0')}`;
+  $('flightLogPathDisplay').textContent = state.flightLogPath || 'Not selected';
+  $('captureFilePathDisplay').textContent = state.captureFilePath || 'Not selected';
+  renderAttachments(); renderFlights();
 }
-
-function buildFileReference(label, path) {
-  if (!path) {
-    return `<p>${label}: Not selected.</p>`;
-  }
-  return `<p><strong>${label}:</strong> ${sanitizeText(path)}</p>`;
+function renderFlights() {
+  $('flightCount').textContent = state.flights.length;
+  $('flightList').innerHTML = state.flights.map((f,i) => `<button class="flight-item ${i===state.activeFlight?'active':''}" data-index="${i}"><span>Flight ${String(f.flightNumber).padStart(2,'0')}</span><small>${esc(f.flightResult)}</small></button>`).join('');
+  document.querySelectorAll('.flight-item').forEach(b => b.addEventListener('click', () => { readFlight(); state.activeFlight = Number(b.dataset.index); writeFlight(); }));
 }
-
+function addFlight() { readFlight(); state.flights.push(newFlight()); state.activeFlight = state.flights.length - 1; writeFlight(); }
+function resetReport() { state.report = {}; state.flights = [newFlight()]; state.activeFlight = 0; state.attachments=[]; state.flightLogPath=''; state.captureFilePath=''; writeShared(); writeFlight(); $('reportPreview').innerHTML='<p>Add flights and generate the report.</p>'; }
+function renderAttachments() {
+  $('attachmentList').innerHTML = state.attachments.length ? state.attachments.map((p,i)=>`<div class="attachment-item"><span title="${esc(p)}">${esc(p)}</span><button class="remove-attachment secondary" data-index="${i}">Remove</button></div>`).join('') : '<em>No evidence attached.</em>';
+  document.querySelectorAll('.remove-attachment').forEach(b=>b.addEventListener('click',()=>{readFlight(); state.attachments.splice(Number(b.dataset.index),1); writeFlight();}));
+}
+function timeline(text) { return text.split(/\n+/).map(x=>x.trim()).filter(Boolean).map(line=>{ const m=line.match(/^(\d{1,2}:\d{2}(?:\s*[AP]M)?)\s*[—\-:]?\s*(.*)$/i); return m ? {time:m[1], note:m[2]} : {time:'',note:line}; }); }
+function overallResult() {
+  const results = state.flights.map(f=>f.flightResult);
+  if (results.includes('Fail')) return 'FAIL';
+  if (results.includes('Aborted')) return 'ABORTED';
+  if (results.includes('Pass with observations')) return 'PASS WITH OBSERVATIONS';
+  if (results.length && results.every(r=>r==='Pass')) return 'PASS';
+  return 'PENDING';
+}
+function reportData() { readShared(); readFlight(); return { version:2, createdAt:new Date().toISOString(), ...state.report, overallResult:overallResult(), flights:state.flights.map((f,i)=>({...f,flightNumber:i+1,timeline:timeline(f.operatorNotes)})) }; }
 function buildMarkdown(data) {
-  const lines = [];
-  lines.push(`# Flight Test ${data.flightId || 'Report'}`);
-  lines.push(`**Mission:** ${data.missionPerformed || 'N/A'}`);
-  lines.push(`**Result:** ${data.result}`);
-  lines.push(`**Issue:** ${data.issue}`);
-  lines.push('---');
-  lines.push(`**Date / Time:** ${data.dateTime}`);
-  lines.push(`**Drone / Aircraft:** ${data.droneType}`);
-  lines.push(`**Battery ID:** ${data.batteryId}`);
-  lines.push(`**Firmware Version:** ${data.firmwareVersion}`);
-  lines.push('');
-  lines.push('## Mission Summary');
-  lines.push(data.missionPerformed || '');
-  lines.push('');
-  lines.push('## Flight Modes');
-  lines.push(data.flightModes || '');
-  lines.push('');
-  lines.push('## Telemetry');
-  lines.push(data.telemetrySummary || '');
-  lines.push('');
-  lines.push('## Anomalies & Bugs');
-  lines.push(data.anomalies || '');
-  lines.push('');
-  lines.push('## Jira Links');
-  lines.push(data.jiraTickets.length ? data.jiraTickets.map((ticket) => `- ${ticket}`).join('\n') : '- None');
-  lines.push('');
-  lines.push('## Flight Log & Capture');
-  lines.push(`- Flight Log: ${data.flightLogPath || 'None'}`);
-  lines.push(`- Wireshark Capture: ${data.captureFilePath || 'None'}`);
-  lines.push('');
-  lines.push('## Attachments');
-  lines.push(data.attachments.length ? data.attachments.map((attachment) => `- ${attachment}`).join('\n') : '- None');
-  lines.push('');
-  lines.push('## Operator Notes');
-  lines.push(data.operatorNotes || '');
-  lines.push('');
-  lines.push('## Structured Timeline');
-  if (data.timeline.length) {
-    data.timeline.forEach((entry) => {
-      lines.push(`- ${entry.timestamp ? `${entry.timestamp} — ` : ''}${entry.note}`);
-    });
-  } else {
-    lines.push('- No timeline entries available.');
-  }
-
-  return lines.join('\n');
+  const out=[`# Drone Flight Test Report — ${data.testId || 'Untitled'}`,``,`**Project / Customer:** ${data.project||'N/A'}  `,`**Overall Result:** ${data.overallResult}  `,`**Location:** ${data.location||'N/A'}  `,`**Operator:** ${data.operator||'N/A'}  `,`**Observer:** ${data.observer||'N/A'}  `,``,`## Test Objective`,``,data.objective||'N/A',``,`## Aircraft & Configuration`,``,`- UAV: ${data.droneType||'N/A'}`,`- Serial Number: ${data.serialNumber||'N/A'}`,`- Flight Controller: ${data.flightController||'N/A'}`,`- Ground Control: ${data.groundControl||'N/A'}`,`- Firmware: ${data.firmwareVersion||'N/A'}`,`- Weather: ${data.weather||'N/A'}`,``,`## Flight Summary`,``,`| Flight | Mission | Result | Battery | Duration |`,`|---:|---|---|---|---|`];
+  data.flights.forEach(f=>out.push(`| ${f.flightNumber} | ${f.missionId||f.missionPerformed||'N/A'} | ${f.flightResult} | ${f.batteryId||'N/A'} | ${f.duration||'N/A'} |`));
+  data.flights.forEach(f=>{out.push(``,`## Flight ${String(f.flightNumber).padStart(2,'0')} — ${f.flightResult}`,``,`**Date / Time:** ${f.flightDateTime||'N/A'}  `,`**Battery:** ${f.batteryId||'N/A'}  `,`**Mission ID:** ${f.missionId||'N/A'}  `,`**Duration:** ${f.duration||'N/A'}  `,`**Flight Modes:** ${f.flightModes||'N/A'}`,``,`### Mission`,f.missionPerformed||'N/A',``,`### Telemetry`,f.telemetrySummary||'N/A',``,`### Anomaly / Bug`,f.anomalies||'None reported',``,`### Expected Behaviour`,f.expectedBehaviour||'N/A',``,`### Immediate Action`,f.immediateAction||'None',``,`### Findings`,f.findings||'N/A',``,`### Operator Timeline`); f.timeline.forEach(e=>out.push(`- ${e.time ? e.time+' — ' : ''}${e.note}`)); out.push(``,`### Evidence`,`- Flight log: ${f.flightLogPath||'None'}`,`- Wireshark capture: ${f.captureFilePath||'None'}`,...(f.attachments||[]).map(x=>`- Attachment: ${x}`)); });
+  out.push(``,`## Conclusion`,``,`Overall test result: **${data.overallResult}**.`); return out.join('\n');
 }
-
-function buildJiraLinks(data) {
-  if (!data.jiraTickets?.length) {
-    return '<p>No Jira links added.</p>';
-  }
-
-  const items = data.jiraTickets.map((ticket) => {
-    const trimmed = ticket.trim();
-    const href = trimmed.match(/^https?:\/\//i) ? trimmed : `https://your-jira-instance.com/browse/${encodeURIComponent(trimmed)}`;
-    return `<li><a href="${sanitizeText(href)}" target="_blank">${sanitizeText(trimmed)}</a></li>`;
-  });
-
-  return `<ul>${items.join('')}</ul>`;
+function buildReportHTML(data) {
+  const summary=data.flights.map(f=>`<tr><td>${f.flightNumber}</td><td>${esc(f.missionId||f.missionPerformed||'N/A')}</td><td>${esc(f.flightResult)}</td><td>${esc(f.batteryId||'N/A')}</td><td>${esc(f.duration||'N/A')}</td></tr>`).join('');
+  const flights=data.flights.map(f=>`<section class="flight"><h2>Flight ${String(f.flightNumber).padStart(2,'0')} — ${esc(f.flightResult)}</h2><div class="facts"><b>Date:</b> ${esc(f.flightDateTime)} <b>Battery:</b> ${esc(f.batteryId||'N/A')} <b>Mission:</b> ${esc(f.missionId||'N/A')} <b>Duration:</b> ${esc(f.duration||'N/A')}</div><h3>Mission</h3><p>${esc(f.missionPerformed||'N/A').replace(/\n/g,'<br>')}</p><h3>Telemetry</h3><p>${esc(f.telemetrySummary||'N/A').replace(/\n/g,'<br>')}</p><h3>Anomaly / Bug</h3><p>${esc(f.anomalies||'None reported').replace(/\n/g,'<br>')}</p><h3>Expected Behaviour</h3><p>${esc(f.expectedBehaviour||'N/A').replace(/\n/g,'<br>')}</p><h3>Immediate Action</h3><p>${esc(f.immediateAction||'None').replace(/\n/g,'<br>')}</p><h3>Findings</h3><p>${esc(f.findings||'N/A').replace(/\n/g,'<br>')}</p><h3>Operator Timeline</h3><ul>${f.timeline.map(e=>`<li>${e.time?`<b>${esc(e.time)}</b> — `:''}${esc(e.note)}</li>`).join('')||'<li>No timeline entries.</li>'}</ul><h3>Evidence</h3><ul><li>Flight log: ${esc(f.flightLogPath||'None')}</li><li>Wireshark capture: ${esc(f.captureFilePath||'None')}</li>${(f.attachments||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`).join('');
+  return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#20242b}h1{font-size:28px}h2{border-bottom:1px solid #bbb;padding-bottom:6px;margin-top:30px}.facts{background:#f3f4f6;padding:10px;line-height:1.8}.flight{page-break-before:always}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:7px;text-align:left}th{background:#eee}p,li{line-height:1.5}.cover{page-break-after:always}</style></head><body><section class="cover"><h1>Drone Flight Test Report</h1><h2>${esc(data.testId||'Untitled')}</h2><p><b>Project:</b> ${esc(data.project||'N/A')}</p><p><b>Overall Result:</b> ${esc(data.overallResult)}</p><p><b>Objective:</b><br>${esc(data.objective||'N/A').replace(/\n/g,'<br>')}</p><h3>Aircraft</h3><p>${esc(data.droneType||'N/A')} — ${esc(data.serialNumber||'N/A')}</p><p><b>Operator:</b> ${esc(data.operator||'N/A')}<br><b>Observer:</b> ${esc(data.observer||'N/A')}<br><b>Location:</b> ${esc(data.location||'N/A')}</p><h3>Flight Summary</h3><table><thead><tr><th>Flight</th><th>Mission</th><th>Result</th><th>Battery</th><th>Duration</th></tr></thead><tbody>${summary}</tbody></table></section>${flights}<h2>Conclusion</h2><p>Overall test result: <b>${esc(data.overallResult)}</b>.</p></body></html>`;
 }
+function generate() { const data=reportData(); $('reportPreview').innerHTML=buildReportHTML(data).replace(/^<!doctype html><html><head>[\s\S]*?<\/head><body>|<\/body><\/html>$/g,''); return data; }
 
-function generateReport() {
-  const timelineEntries = extractTimelineEntries(operatorNotes.value.trim());
-  const data = {
-    flightId: flightId.value.trim(),
-    dateTime: dateTime.value,
-    droneType: droneType.value.trim(),
-    batteryId: batteryId.value.trim(),
-    firmwareVersion: firmwareVersion.value.trim(),
-    missionPerformed: missionPerformed.value.trim(),
-    flightModes: flightModes.value.trim(),
-    telemetrySummary: telemetrySummary.value.trim(),
-    anomalies: anomalies.value.trim(),
-    jiraTickets: jiraTickets.value
-      .split(/\s*,\s*/)
-      .map((ticket) => ticket.trim())
-      .filter(Boolean),
-    flightLogPath,
-    captureFilePath,
-    attachments,
-    operatorNotes: operatorNotes.value.trim(),
-    timeline: timelineEntries,
-    result: anomalies.value.trim() ? 'Partially Successful' : 'Successful',
-    issue: anomalies.value.trim() || 'No major issues'
-  };
+async function selectFile(kind){ readFlight(); const options=kind==='log'?{title:'Select Flight Log',filters:[{name:'Flight Logs',extensions:['ulg','bin','log','tlog','csv']}] }:{title:'Select Wireshark Capture',filters:[{name:'Capture Files',extensions:['pcap','pcapng','cap']}]}; const r=await window.api.selectFiles(options); if(r.canceled)return; if(kind==='log')state.flightLogPath=r.filePaths[0]; else state.captureFilePath=r.filePaths[0]; writeFlight(); }
+async function addAttachments(){ readFlight(); const r=await window.api.selectFiles({title:'Select Evidence / Attachments',multi:true}); if(r.canceled)return; state.attachments=[...new Set([...state.attachments,...r.filePaths])]; writeFlight(); }
+function startVoice(){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){$('voiceStatus').textContent='Voice recognition is not available in this environment.';return;} recognition=new SR(); recognition.continuous=true; recognition.interimResults=false; recognition.lang='en-US'; recognition.onstart=()=>{$('startVoiceButton').disabled=true;$('stopVoiceButton').disabled=false;$('voiceStatus').textContent='Listening…';}; recognition.onresult=e=>{let text='';for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)text+=e.results[i][0].transcript;if(text){const el=$('operatorNotes');el.value+=(el.value?'\n':'')+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+' — '+text.trim();readFlight();}}; recognition.onerror=e=>$('voiceStatus').textContent='Voice error: '+e.error; recognition.onend=()=>{$('startVoiceButton').disabled=false;$('stopVoiceButton').disabled=true;$('voiceStatus').textContent='Voice transcription idle.';}; recognition.start(); }
+function stopVoice(){if(recognition){recognition.stop();recognition=null;}}
 
-  const html = buildReport(data);
-  reportPreview.innerHTML = html;
-  reportPreview.scrollIntoView({ behavior: 'smooth' });
-  return { html, data };
-}
+sharedFields.forEach(id=>$(id).addEventListener('input',readShared)); flightFields.forEach(id=>$(id).addEventListener('input',readFlight));
+$('addFlightButton').addEventListener('click',addFlight); $('newReportButton').addEventListener('click',()=>{if(confirm('Start a new report? Unsaved data will be cleared.'))resetReport();});
+$('selectFlightLogButton').addEventListener('click',()=>selectFile('log')); $('selectCaptureButton').addEventListener('click',()=>selectFile('capture')); $('addAttachmentButton').addEventListener('click',addAttachments);
+$('startVoiceButton').addEventListener('click',startVoice); $('stopVoiceButton').addEventListener('click',stopVoice); $('generateReportButton').addEventListener('click',generate);
+$('saveDataButton').addEventListener('click',async()=>{const data=reportData();const r=await window.api.saveJSON(data,`${data.testId||'flight-test-report'}.json`);if(!r.canceled)$('voiceStatus').textContent='Report JSON saved.';});
+$('exportMarkdownButton').addEventListener('click',async()=>{const d=reportData();const r=await window.api.saveMarkdown(buildMarkdown(d),`${d.testId||'flight-test-report'}.md`);if(!r.canceled)$('voiceStatus').textContent='Markdown report exported.';});
+$('exportPdfButton').addEventListener('click',async()=>{const d=reportData();const r=await window.api.exportPDF(buildReportHTML(d),`${d.testId||'flight-test-report'}.pdf`);if(!r.canceled)$('voiceStatus').textContent='PDF report exported.';});
 
-function renderAttachmentList() {
-  if (!attachments.length) {
-    attachmentList.innerHTML = '<em>No attachments added.</em>';
-    return;
-  }
-
-  attachmentList.innerHTML = attachments
-    .map(
-      (filePath, index) =>
-        `<div class="attachment-item"><span>${sanitizeText(filePath)}</span><button type="button" class="remove-attachment" data-index="${index}">Remove</button></div>`
-    )
-    .join('');
-}
-
-async function addAttachments() {
-  const result = await window.api.selectAttachments();
-  if (result.canceled) {
-    return;
-  }
-
-  attachments = [...new Set([...attachments, ...result.filePaths])];
-  renderAttachmentList();
-}
-
-function deleteAttachment(event) {
-  const target = event.target;
-  if (!target.matches('.remove-attachment')) return;
-  const index = Number(target.dataset.index);
-  if (!Number.isFinite(index)) return;
-  attachments.splice(index, 1);
-  renderAttachmentList();
-}
-
-async function saveFlightData() {
-  const { data } = generateReport();
-  const result = await window.api.saveFlightData(data);
-  if (!result.canceled) {
-    voiceStatus.textContent = `Flight data saved to ${result.filePath}`;
-  }
-}
-
-function buildReport(data) {
-  const lines = [];
-  lines.push(`<h1>Flight Test ${sanitizeText(data.flightId || 'Report')}</h1>`);
-  lines.push(`<p><strong>Mission:</strong> ${sanitizeText(data.missionPerformed || 'N/A')}</p>`);
-  lines.push(`<p><strong>Result:</strong> ${sanitizeText(data.result || 'Pending')}</p>`);
-  lines.push(`<p><strong>Issue:</strong> ${sanitizeText(data.issue || 'None reported')}</p>`);
-  lines.push('<hr>');
-  lines.push(`<p><strong>Date / Time:</strong> ${sanitizeText(data.dateTime)}</p>`);
-  lines.push(`<p><strong>Drone / Aircraft:</strong> ${sanitizeText(data.droneType)}</p>`);
-  lines.push(`<p><strong>Battery ID:</strong> ${sanitizeText(data.batteryId)}</p>`);
-  lines.push(`<p><strong>Firmware Version:</strong> ${sanitizeText(data.firmwareVersion)}</p>`);
-  lines.push('<h2>Mission Summary</h2>');
-  lines.push(`<p>${sanitizeText(data.missionPerformed)}</p>`);
-  lines.push('<h2>Flight Modes</h2>');
-  lines.push(`<p>${sanitizeText(data.flightModes)}</p>`);
-  lines.push('<h2>Telemetry</h2>');
-  lines.push(`<p>${sanitizeText(data.telemetrySummary)}</p>`);
-  lines.push('<h2>Anomalies & Bugs</h2>');
-  lines.push(`<p>${sanitizeText(data.anomalies)}</p>`);
-  lines.push('<h2>Jira Links</h2>');
-  lines.push(buildJiraLinks(data));
-  lines.push('<h2>Attachments</h2>');
-  lines.push(buildAttachmentList(data));
-  lines.push('<h2>Operator Notes</h2>');
-  lines.push(`<p>${sanitizeText(data.operatorNotes)}</p>`);
-  lines.push('<h2>Structured Timeline</h2>');
-
-  if (data.timeline.length) {
-    lines.push('<ul>');
-    data.timeline.forEach((entry) => {
-      lines.push(`<li>${entry.timestamp ? `<strong>${sanitizeText(entry.timestamp)}</strong> — ` : ''}${sanitizeText(entry.note)}</li>`);
-    });
-    lines.push('</ul>');
-  } else {
-    lines.push('<p>No timeline entries available.</p>');
-  }
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flight Test Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; color: #222; }
-    h1 { margin-bottom: 0.2em; }
-    h2 { margin-top: 1.6em; }
-    p { line-height: 1.6; }
-    ul { padding-left: 1.2rem; }
-    a { color: #1d4ed8; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    hr { margin: 1.8rem 0; border-color: #ccc; }
-  </style>
-</head>
-<body>
-  ${lines.join('\n')}
-</body>
-</html>`;
-}
-
-async function exportPDF() {
-  const { html } = generateReport();
-  const result = await window.api.exportPDF(html);
-  if (!result.canceled) {
-    voiceStatus.textContent = `PDF exported to ${result.filePath}`;
-  }
-}
-
-async function exportMarkdown() {
-  const { data } = generateReport();
-  const markdown = buildMarkdown(data);
-  const result = await window.api.saveMarkdown(markdown);
-  if (!result.canceled) {
-    voiceStatus.textContent = `Markdown exported to ${result.filePath}`;
-  }
-}
-
-async function selectFlightLog() {
-  const result = await window.api.selectFile({
-    title: 'Select Flight Log File',
-    filters: [{ name: 'Flight Logs', extensions: ['log', 'txt', 'bin', 'ulg'] }]
-  });
-
-  if (!result.canceled) return;
-  flightLogPath = result.filePath;
-  flightLogPathDisplay.textContent = flightLogPath;
-}
-
-async function selectCaptureFile() {
-  const result = await window.api.selectFile({
-    title: 'Select Wireshark Capture File',
-    filters: [{ name: 'Capture Files', extensions: ['pcap', 'pcapng', 'cap'] }]
-  });
-
-  if (!result.canceled) return;
-  captureFilePath = result.filePath;
-  captureFilePathDisplay.textContent = captureFilePath;
-}
-
-function renderAttachmentList() {
-  if (!attachments.length) {
-    attachmentList.innerHTML = '<em>No attachments added.</em>';
-    return;
-  }
-
-  attachmentList.innerHTML = attachments
-    .map((filePath, index) => {
-      const lower = filePath.toLowerCase();
-      const isImage = ['.png', '.jpg', '.jpeg', '.gif'].some((ext) => lower.endsWith(ext));
-      const thumbnail = isImage ? `<img class="attachment-thumb" src="file://${filePath}" alt="Attachment preview" />` : '';
-      return `<div class="attachment-item"><div class="attachment-file">${thumbnail}<span>${sanitizeText(filePath)}</span></div><button type="button" class="remove-attachment" data-index="${index}">Remove</button></div>`;
-    })
-    .join('');
-}
-
-function addVoiceEvent(message) {
-  const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  operatorNotes.value += `${timestamp} — ${message}\n`;
-}
-
-function startVoiceRecognition() {
-  if (!SpeechRecognition) {
-    voiceStatus.textContent = 'Voice transcription is not supported in this environment.';
-    return;
-  }
-
-  if (voiceActive) return;
-
-  recognition = new SpeechRecognition();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-
-  recognition.onstart = () => {
-    voiceActive = true;
-    startVoiceButton.disabled = true;
-    stopVoiceButton.disabled = false;
-    voiceStatus.textContent = 'Listening... speak your post-flight notes.';
-  };
-
-  recognition.onresult = (event) => {
-    let interimTranscript = '';
-    let finalTranscript = '';
-
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      const transcript = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript;
-      } else {
-        interimTranscript += transcript;
-      }
-    }
-
-    if (finalTranscript.trim()) {
-      addVoiceEvent(finalTranscript.trim());
-    }
-
-    if (interimTranscript.trim()) {
-      voiceStatus.textContent = `Listening... ${interimTranscript.trim()}`;
-    }
-  };
-
-  recognition.onerror = (event) => {
-    voiceStatus.textContent = `Voice recognition error: ${event.error}`;
-    stopVoiceRecognition();
-  };
-
-  recognition.onend = () => {
-    stopVoiceRecognition();
-  };
-
-  recognition.start();
-}
-
-function stopVoiceRecognition() {
-  if (!recognition) return;
-  recognition.stop();
-  voiceActive = false;
-  startVoiceButton.disabled = false;
-  stopVoiceButton.disabled = true;
-  voiceStatus.textContent = 'Voice transcription stopped.';
-}
-
-generateReportButton.addEventListener('click', (event) => {
-  event.preventDefault();
-  generateReport();
-  voiceStatus.textContent = 'Report generated.';
-});
-
-saveDataButton.addEventListener('click', async (event) => {
-  event.preventDefault();
-  await saveFlightData();
-});
-
-exportPdfButton.addEventListener('click', async (event) => {
-  event.preventDefault();
-  await exportPDF();
-});
-
-exportMarkdownButton.addEventListener('click', async (event) => {
-  event.preventDefault();
-  await exportMarkdown();
-});
-
-selectFlightLogButton.addEventListener('click', async () => {
-  await selectFlightLog();
-});
-
-selectCaptureButton.addEventListener('click', async () => {
-  await selectCaptureFile();
-});
-
-addAttachmentButton.addEventListener('click', async () => {
-  await addAttachments();
-});
-
-attachmentList.addEventListener('click', deleteAttachment);
-
-startVoiceButton.addEventListener('click', () => {
-  startVoiceRecognition();
-});
-
-stopVoiceButton.addEventListener('click', () => {
-  stopVoiceRecognition();
-});
-
-renderAttachmentList();
-setDateTimeNow();
+resetReport();
