@@ -2,6 +2,15 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 
+// Linux AppImages are commonly launched from filesystems where the Electron
+// SUID sandbox helper cannot retain the required root:root 4755 permissions.
+// Disable the Chromium SUID sandbox only for the packaged Linux build so the
+// AppImage/.deb can start without requiring a manual chmod/chown step.
+// The BrowserWindow still uses contextIsolation and no Node.js integration.
+if (process.platform === 'linux' && app.isPackaged) {
+  app.commandLine.appendSwitch('no-sandbox');
+}
+
 let mainWindow;
 
 function createMainWindow() {
