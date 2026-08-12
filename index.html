@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drone Flight Test Reporter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Drone Flight Test Reporter</h1>
+      <p>Professional reports, telemetry logging, attachments and voice-assisted notes.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel form-panel">
+      <div class="section-header">
+        <h2>Flight Record</h2>
+      </div>
+
+      <form id="flight-form">
+        <div class="grid-2">
+          <label>Flight / Mission ID<input id="flightId" type="text" placeholder="#015" /></label>
+          <label>Date & Time<input id="dateTime" type="datetime-local" /></label>
+        </div>
+
+        <div class="grid-2">
+          <label>Drone / Aircraft<input id="droneType" type="text" placeholder="e.g. Heavy-Lift Quadcopter" /></label>
+          <label>Battery ID<input id="batteryId" type="text" placeholder="e.g. BATT-132" /></label>
+        </div>
+
+        <label>Firmware Version<input id="firmwareVersion" type="text" placeholder="e.g. PX4 v1.14.0" /></label>
+        <label>Mission Performed<textarea id="missionPerformed" rows="2" placeholder="Autonomous corridor test, obstacle avoidance, etc."></textarea></label>
+        <label>Flight Modes<textarea id="flightModes" rows="2" placeholder="Auto, Loiter, RTL, Manual"></textarea></label>
+
+        <div class="grid-2">
+          <label>GPS / Altitude / Speed<textarea id="telemetrySummary" rows="3" placeholder="GPS lock achieved, 120m altitude, 12 m/s speed..."></textarea></label>
+          <label>Anomalies / Bugs<textarea id="anomalies" rows="3" placeholder="Unexpected loiter, return-to-home, sensor glitch..."></textarea></label>
+        </div>
+
+        <label>Jira Ticket Links<input id="jiraTickets" type="text" placeholder="DRONE-123, BUG-456, https://jira.example.com/..." /></label>
+
+        <div class="file-selection-row">
+          <div class="file-select-card">
+            <label>Flight Log File</label>
+            <div class="file-path" id="flightLogPathDisplay">No flight log selected.</div>
+            <button type="button" id="selectFlightLogButton">Select Flight Log</button>
+          </div>
+          <div class="file-select-card">
+            <label>Wireshark Capture</label>
+            <div class="file-path" id="captureFilePathDisplay">No capture selected.</div>
+            <button type="button" id="selectCaptureButton">Select Capture File</button>
+          </div>
+        </div>
+
+        <div class="attachment-section">
+          <label>Attachments</label>
+          <div id="attachmentList" class="attachments-list">No attachments added.</div>
+          <button type="button" id="addAttachmentButton">Add Attachments</button>
+        </div>
+
+        <label>Operator Notes<textarea id="operatorNotes" rows="4" placeholder="Speak or type post-flight notes."></textarea></label>
+
+        <div class="button-row">
+          <button type="button" id="startVoiceButton">Start Voice Note</button>
+          <button type="button" id="stopVoiceButton" disabled>Stop Voice Note</button>
+          <button type="button" id="generateReportButton">Generate Report</button>
+          <button type="button" id="saveDataButton">Save Flight Data</button>
+          <button type="button" id="exportMarkdownButton">Export Markdown</button>
+          <button type="button" id="exportPdfButton">Export PDF</button>
+        </div>
+
+        <div class="voice-status" id="voiceStatus">Voice transcription is not running.</div>
+      </form>
+    </section>
+
+    <section class="panel report-panel">
+      <div class="section-header">
+        <h2>Generated Report</h2>
+      </div>
+      <div id="reportPreview" class="report-preview">
+        <p>No report generated yet. Fill in the flight record and click <strong>Generate Report</strong>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Prototype desktop app for drone flight-test logging.</span>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

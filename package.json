@@ -1,0 +1,20 @@
+{
+  "name": "drone-flight-test-reporter",
+  "version": "0.1.0",
+  "description": "Desktop app prototype for drone flight test reporting, voice notes, telemetry and PDF export.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^43.4.0"
+  },
+  "keywords": [
+    "drone",
+    "flight-test",
+    "report",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT"
+}
