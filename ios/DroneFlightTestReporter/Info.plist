@@ -2,21 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleDisplayName</key>
-    <string>Drone Flight Test Reporter</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.tective.droneflighttestreporter.ios</string>
-    <key>CFBundleName</key>
-    <string>DroneFlightTestReporter</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>UILaunchScreen</key>
-    <dict/>
+    <key>CFBundleDisplayName</key><string>Drone Flight Test Reporter</string>
+    <key>CFBundleIdentifier</key><string>com.tective.droneflighttestreporter.ios</string>
+    <key>CFBundleName</key><string>DroneFlightTestReporter</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>NSMicrophoneUsageDescription</key><string>Drone Flight Test Reporter uses the microphone for flight-test voice notes.</string>
+    <key>NSSpeechRecognitionUsageDescription</key><string>Drone Flight Test Reporter uses speech recognition to transcribe flight-test voice notes.</string>
+    <key>UILaunchScreen</key><dict/>
     <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
+    <array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
 </dict>
 </plist>
