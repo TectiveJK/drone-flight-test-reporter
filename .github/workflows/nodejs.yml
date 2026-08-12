@@ -1,0 +1,29 @@
+name: Node.js Electron CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate renderer script syntax
+        run: node -e "const fs = require('fs'); new Function(fs.readFileSync('renderer.js','utf8')); console.log('renderer.js syntax OK');"
+
+      - name: Validate main script syntax
+        run: node -e "const fs = require('fs'); new Function(fs.readFileSync('main.js','utf8')); console.log('main.js syntax OK');"
