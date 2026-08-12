@@ -51,6 +51,18 @@ ipcMain.handle('save-json', async (event, data, defaultName = 'flight-test-repor
   return { canceled: false, filePath };
 });
 
+ipcMain.handle('open-json', async () => {
+  const win = BrowserWindow.getFocusedWindow() || mainWindow;
+  const result = await dialog.showOpenDialog(win, { title: 'Open Drone Flight Test Report', properties: ['openFile'], filters: [{ name: 'Flight Test Reports', extensions: ['json'] }] });
+  if (result.canceled || !result.filePaths.length) return { canceled: true };
+  try {
+    const content = await fs.readFile(result.filePaths[0], 'utf8');
+    return { canceled: false, filePath: result.filePaths[0], data: JSON.parse(content) };
+  } catch (error) {
+    return { canceled: false, error: `Could not open report: ${error.message}` };
+  }
+});
+
 ipcMain.handle('select-files', async (event, options = {}) => {
   const win = BrowserWindow.getFocusedWindow() || mainWindow;
   const result = await dialog.showOpenDialog(win, { title: options.title || 'Select Files', properties: options.multi ? ['openFile', 'multiSelections'] : ['openFile'], filters: options.filters || [] });
