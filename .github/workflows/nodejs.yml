@@ -37,7 +37,7 @@ jobs:
         run: node -e "const fs = require('fs'); new Function(fs.readFileSync('main.js','utf8')); console.log('main.js syntax OK');"
 
       - name: Build Linux packages without publishing
-        run: npm run build:linux -- --publish never
+        run: npx electron-builder --linux AppImage deb --publish never
 
       - name: Verify Linux packages
         run: |
