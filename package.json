@@ -19,6 +19,9 @@
     "electron": "^43.4.0"
   },
   "keywords": ["drone", "flight-test", "report", "electron", "linux"],
-  "author": "TectiveJK",
+  "author": {
+    "name": "TectiveJK",
+    "email": "john.kokotinis@tective.nl"
+  },
   "license": "MIT"
 }
