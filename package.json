@@ -1,20 +1,27 @@
 {
   "name": "drone-flight-test-reporter",
-  "version": "0.1.0",
-  "description": "Desktop app prototype for drone flight test reporting, voice notes, telemetry and PDF export.",
+  "version": "0.2.0",
+  "description": "Linux-first desktop application for professional multi-flight drone flight-test reporting.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build:linux": "npx electron-builder --linux AppImage deb"
+  },
+  "build": {
+    "appId": "com.tective.droneflighttestreporter",
+    "productName": "Drone Flight Test Reporter",
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility"
+    }
   },
   "devDependencies": {
     "electron": "^43.4.0"
   },
-  "keywords": [
-    "drone",
-    "flight-test",
-    "report",
-    "electron"
-  ],
-  "author": "",
+  "keywords": ["drone", "flight-test", "report", "electron", "linux"],
+  "author": {
+    "name": "TectiveJK",
+    "email": "john.kokotinis@tective.nl"
+  },
   "license": "MIT"
 }

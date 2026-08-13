@@ -1,13 +1,20 @@
-name: Node.js Electron CI
+name: Linux Electron Build
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - feature/multi-flight-linux
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,9 +22,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -27,3 +35,28 @@ jobs:
 
       - name: Validate main script syntax
         run: node -e "const fs = require('fs'); new Function(fs.readFileSync('main.js','utf8')); console.log('main.js syntax OK');"
+
+      - name: Build Linux packages without publishing
+        run: npx electron-builder --linux AppImage deb --publish never
+
+      - name: Verify Linux packages
+        run: |
+          test -n "$(find dist -maxdepth 1 -type f -name '*.AppImage' -print -quit)"
+          test -n "$(find dist -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          ls -lh dist/*.AppImage dist/*.deb
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: drone-flight-test-reporter-linux-appimage
+          path: dist/*.AppImage
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: drone-flight-test-reporter-linux-deb
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 30
