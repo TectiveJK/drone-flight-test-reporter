@@ -25,6 +25,19 @@
         <div class="section-header"><h2>Test Report</h2></div>
         <label>Test ID<input id="testId" placeholder="FT-2026-0015" /></label>
         <label>Project / Customer<input id="project" placeholder="Autonomous Mission Test" /></label>
+        <label>Test Objective Type
+          <select id="objectiveType">
+            <option value="">Select test type...</option>
+            <option>Unit test</option>
+            <option>Integration test</option>
+            <option>Requirement verification</option>
+            <option>Exploratory test</option>
+            <option>Regression test</option>
+            <option>Stress test</option>
+            <option>Acceptance test</option>
+            <option>User or stakeholder feedback test</option>
+          </select>
+        </label>
         <label>Test Objective<textarea id="objective" rows="3" placeholder="Describe what this test campaign is intended to verify."></textarea></label>
         <label>Location<input id="location" placeholder="Test site / airfield" /></label>
         <div class="grid-2"><label>Operator<input id="operator" /></label><label>Observer<input id="observer" /></label></div>
