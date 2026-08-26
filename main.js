@@ -1,6 +1,14 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
+const os = require('os');
 const fs = require('fs').promises;
+const fsSync = require('fs');
+
+function sharedTestDayDir() {
+  const dir = path.join(os.homedir(), 'DroneTestDay');
+  fsSync.mkdirSync(dir, { recursive: true });
+  return dir;
+}
 
 // Linux AppImages are commonly launched from filesystems where the Electron
 // SUID sandbox helper cannot retain the required root:root 4755 permissions.
@@ -75,7 +83,7 @@ app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(
 
 ipcMain.handle('export-pdf', async (event, htmlContent, defaultName = 'flight-test-report.pdf') => {
   const win = BrowserWindow.getFocusedWindow() || mainWindow;
-  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report PDF', defaultPath: defaultName, filters: [{ name: 'PDF Files', extensions: ['pdf'] }] });
+  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report PDF', defaultPath: path.join(sharedTestDayDir(), defaultName), filters: [{ name: 'PDF Files', extensions: ['pdf'] }] });
   if (canceled || !filePath) return { canceled: true };
   const printWindow = new BrowserWindow({ show: false, webPreferences: { sandbox: true } });
   try {
@@ -88,7 +96,7 @@ ipcMain.handle('export-pdf', async (event, htmlContent, defaultName = 'flight-te
 
 ipcMain.handle('save-markdown', async (event, markdown, defaultName = 'flight-test-report.md') => {
   const win = BrowserWindow.getFocusedWindow() || mainWindow;
-  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report Markdown', defaultPath: defaultName, filters: [{ name: 'Markdown Files', extensions: ['md'] }] });
+  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report Markdown', defaultPath: path.join(sharedTestDayDir(), defaultName), filters: [{ name: 'Markdown Files', extensions: ['md'] }] });
   if (canceled || !filePath) return { canceled: true };
   await fs.writeFile(filePath, markdown, 'utf8');
   return { canceled: false, filePath };
@@ -96,7 +104,7 @@ ipcMain.handle('save-markdown', async (event, markdown, defaultName = 'flight-te
 
 ipcMain.handle('save-json', async (event, data, defaultName = 'flight-test-report.json') => {
   const win = BrowserWindow.getFocusedWindow() || mainWindow;
-  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report JSON', defaultPath: defaultName, filters: [{ name: 'JSON Files', extensions: ['json'] }] });
+  const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Save Flight Test Report JSON', defaultPath: path.join(sharedTestDayDir(), defaultName), filters: [{ name: 'JSON Files', extensions: ['json'] }] });
   if (canceled || !filePath) return { canceled: true };
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
   return { canceled: false, filePath };
@@ -104,7 +112,7 @@ ipcMain.handle('save-json', async (event, data, defaultName = 'flight-test-repor
 
 ipcMain.handle('open-json', async () => {
   const win = BrowserWindow.getFocusedWindow() || mainWindow;
-  const result = await dialog.showOpenDialog(win, { title: 'Open Drone Flight Test Report', properties: ['openFile'], filters: [{ name: 'Flight Test Reports', extensions: ['json'] }] });
+  const result = await dialog.showOpenDialog(win, { title: 'Open Drone Flight Test Report', defaultPath: sharedTestDayDir(), properties: ['openFile'], filters: [{ name: 'Flight Test Reports', extensions: ['json'] }] });
   if (result.canceled || !result.filePaths.length) return { canceled: true };
   try {
     const content = await fs.readFile(result.filePaths[0], 'utf8');
