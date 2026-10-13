@@ -1,7 +1,7 @@
 import './style.css';
 
 const categories = ['Fixed-Wing UAVs','Multirotor UAVs','Single-Rotor UAVs (Helicopter)','VTOL UAVs','Hybrid UAVs','Lighter-than-Air UAVs','Flapping-Wing / Ornithopter UAVs','Unconventional / Experimental UAVs'];
-const objectiveTypes = ['Unit test','Integration test','Requirement verification','Exploratory test','Regression test','Stress test','Acceptance test','User or stakeholder feedback test'];
+const objectiveTypes = ['Unit test','Integration test','Requirement verification','Exploratory test','Regression test','Stress test','Acceptance test','User or stakeholder feedback test','GNSS Denied','April Tag Landing test'];
 const results = ['Pending','Pass','Pass with observations','Fail','Aborted'];
 const vehiclePlates = ['V-328-TL (Old)','V-960-VH (New)'];
 const key = 'dft-reporter-ios-draft-v1';

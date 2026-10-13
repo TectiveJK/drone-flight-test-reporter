@@ -39,7 +39,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - Multi-flight reports
 - UAV category selector
 - Specific aircraft/model
-- Test Objective Type selector
+- Test Objective Type selector, including GNSS Denied and April Tag Landing test
 - Detailed test objective
 - Flight result and mission information
 - Telemetry, anomalies, expected behaviour, actions and findings
