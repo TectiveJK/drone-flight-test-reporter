@@ -23,8 +23,32 @@ function reportData() { readShared();readFlight();return {version:4,createdAt:ne
 function buildMarkdown(data) { const out=[`# Drone Flight Test Report`,'',`**Test Objective Type:** ${objectiveTypeText(data)}  `,`**Overall Result:** ${data.overallResult}  `,`**Location:** ${data.location||'N/A'}  `,`**Operator:** ${data.operator||'N/A'}  `,`**Observer:** ${data.observer||'N/A'}  `,'','## Test Objective','',data.objective||'N/A','','## Aircraft & Configuration','',`- UAV Category: ${data.droneCategory||'N/A'}`,`- Aircraft / Model: ${data.droneModel||'N/A'}`,`- Weather: ${data.weather||'N/A'}`,'','## Flight Summary','','| Flight | Mission | Result | Battery | Duration |','|---:|---|---|---|---|']; data.flights.forEach(f=>out.push(`| ${f.flightNumber} | ${f.missionPerformed||'N/A'} | ${f.flightResult} | ${f.batteryId||'N/A'} | ${f.duration||'N/A'} |`)); data.flights.forEach(f=>{out.push('','## Flight '+String(f.flightNumber).padStart(2,'0')+' — '+f.flightResult,'',`**Date / Time:** ${f.flightDateTime||'N/A'}  `,`**Battery:** ${f.batteryId||'N/A'}  `,`**Duration:** ${f.duration||'N/A'}  `,`**Flight Modes:** ${f.flightModes||'N/A'}`,'','### Mission',f.missionPerformed||'N/A','','### Anomaly / Bug',f.anomalies||'None reported','','### Immediate Action',f.immediateAction||'None','','### Evidence',`- Flight log: ${f.flightLogPath||'None'}`,`- Wireshark capture: ${f.captureFilePath||'None'}`,...(f.attachments||[]).map(x=>`- Attachment: ${x}`)); }); out.push('','## Conclusion','',`Overall test result: **${data.overallResult}**.`); return out.join('\n'); }
 function buildReportHTML(data) { const summary=data.flights.map(f=>`<tr><td>${f.flightNumber}</td><td>${esc(f.missionPerformed||'N/A')}</td><td>${esc(f.flightResult)}</td><td>${esc(f.batteryId||'N/A')}</td><td>${esc(f.duration||'N/A')}</td></tr>`).join(''); const flights=data.flights.map(f=>`<section class="flight"><h2>Flight ${String(f.flightNumber).padStart(2,'0')} — ${esc(f.flightResult)}</h2><div class="facts"><b>Date:</b> ${esc(f.flightDateTime||'N/A')} <b>Battery:</b> ${esc(f.batteryId||'N/A')} <b>Duration:</b> ${esc(f.duration||'N/A')}</div><h3>Mission</h3><p>${esc(f.missionPerformed||'N/A').replace(/\n/g,'<br>')}</p><h3>Anomaly / Bug</h3><p>${esc(f.anomalies||'None reported').replace(/\n/g,'<br>')}</p><h3>Immediate Action</h3><p>${esc(f.immediateAction||'None').replace(/\n/g,'<br>')}</p><h3>Evidence</h3><ul><li>Flight log: ${esc(f.flightLogPath||'None')}</li><li>Wireshark capture: ${esc(f.captureFilePath||'None')}</li>${(f.attachments||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`).join(''); return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#20242b}h1{font-size:28px}h2{border-bottom:1px solid #bbb;padding-bottom:6px;margin-top:30px}.facts{background:#f3f4f6;padding:10px;line-height:1.8}.flight{page-break-before:always}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:7px;text-align:left}th{background:#eee}p,li{line-height:1.5}.cover{page-break-after:always}</style></head><body><section class="cover"><h1>Drone Flight Test Report</h1><p><b>Test Objective Type:</b> ${esc(objectiveTypeText(data))}</p><p><b>Overall Result:</b> ${esc(data.overallResult)}</p><p><b>Objective:</b><br>${esc(data.objective||'N/A').replace(/\n/g,'<br>')}</p><h3>Aircraft</h3><p><b>UAV Category:</b> ${esc(data.droneCategory||'N/A')}<br><b>Aircraft / Model:</b> ${esc(data.droneModel||'N/A')}</p><p><b>Operator:</b> ${esc(data.operator||'N/A')}<br><b>Observer:</b> ${esc(data.observer||'N/A')}<br><b>Location:</b> ${esc(data.location||'N/A')}</p><h3>Flight Summary</h3><table><thead><tr><th>Flight</th><th>Mission</th><th>Result</th><th>Battery</th><th>Duration</th></tr></thead><tbody>${summary}</tbody></table></section>${flights}<h2>Conclusion</h2><p>Overall test result: <b>${esc(data.overallResult)}</b>.</p></body></html>`; }
 function generate() { const data=reportData(); $('reportPreview').innerHTML=buildReportHTML(data).replace(/^<!doctype html><html><head>[\s\S]*?<\/head><body>|<\/body><\/html>$/g,''); return data; }
-async function selectFile(kind){ readFlight(); const options=kind==='log'?{title:'Select Flight Log',filters:[{name:'Flight Logs',extensions:['ulg','bin','log','tlog','csv']}]}:{title:'Select Wireshark Capture',filters:[{name:'Capture Files',extensions:['pcap','pcapng','cap']}]}; const r=await window.api.selectFiles(options); if(r.canceled)return; if(kind==='log')state.flightLogPath=r.filePaths[0]; else state.captureFilePath=r.filePaths[0]; writeFlight(); }
-async function addAttachments(){ readFlight(); const r=await window.api.selectFiles({title:'Select Evidence / Attachments',multi:true}); if(r.canceled)return; state.attachments=[...new Set([...state.attachments,...r.filePaths])]; writeFlight(); }
+async function selectFile(kind){
+  const options = kind === 'log'
+    ? { title: 'Select Flight Log', filters: [{ name: 'Flight Logs', extensions: ['ulg','ulog','bin','log','tlog','csv','txt','DAT'] }, { name: 'All Files', extensions: ['*'] }] }
+    : { title: 'Select Wireshark Capture', filters: [{ name: 'Capture Files', extensions: ['pcap','pcapng','cap'] }, { name: 'All Files', extensions: ['*'] }] };
+  const r = await window.api.selectFiles(options);
+  if (r.canceled || !r.filePaths?.length) return;
+  readFlight();
+  const f = state.flights[state.activeFlight];
+  if (!f) return;
+  if (kind === 'log') f.flightLogPath = r.filePaths[0];
+  else f.captureFilePath = r.filePaths[0];
+  writeFlight();
+  generate();
+  $('voiceStatus').textContent = `${kind === 'log' ? 'Flight log' : 'Capture'} added: ${r.filePaths[0]}`;
+}
+async function addAttachments(){
+  const r = await window.api.selectFiles({ title: 'Select Evidence / Attachments', multi: true, filters: [{ name: 'All Files', extensions: ['*'] }] });
+  if (r.canceled || !r.filePaths?.length) return;
+  readFlight();
+  const f = state.flights[state.activeFlight];
+  if (!f) return;
+  f.attachments = [...new Set([...(f.attachments || []), ...r.filePaths])];
+  writeFlight();
+  generate();
+  $('voiceStatus').textContent = `${r.filePaths.length} attachment(s) added.`;
+}
 async function openReport(){ const r=await window.api.openJSON(); if(r.canceled)return; if(r.error){alert(r.error);return;} loadReport(r.data); $('voiceStatus').textContent=`Opened ${r.filePath}`; }
 sharedFields.forEach(id=>$(id).addEventListener('input',readShared)); flightFields.forEach(id=>$(id).addEventListener('input',readFlight));
 $('addFlightButton').addEventListener('click',addFlight); $('removeFlightButton').addEventListener('click',removeCurrentFlight); $('newReportButton').addEventListener('click',()=>{if(confirm('Start a new report? Unsaved data will be cleared.'))resetReport();}); $('openReportButton').addEventListener('click',openReport);

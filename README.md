@@ -10,7 +10,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 - flight/mission metadata: objective types, location, operator, UAV category and model, weather
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
 - battery, mission performed, flight modes, anomalies, immediate action
-- flight log and Wireshark capture support
+- flight log, Wireshark capture, and attachment files stay on the flight and appear under Evidence in the report preview, Markdown, and PDF
 - Jira ticket links and attachments
 - professional report preview
 - save and open reports as JSON in `~/DroneTestDay`
@@ -58,6 +58,7 @@ A separate mobile/PWA app lives in `ios-app/`. See [ios-app/README.md](ios-app/R
 ## Notes
 
 - Saved reports default to the shared `~/DroneTestDay` folder.
+- Selecting a flight log, capture, or attachment updates the current flight immediately and regenerates the report preview.
 - This repository is a prototype. Future improvements can include better telemetry ingestion, screenshot/video attachment handling, and Jira issue automation.
 
 ## GitHub
