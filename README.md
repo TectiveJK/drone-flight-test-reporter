@@ -3,7 +3,7 @@
 [![CI](https://github.com/TectiveJK/drone-flight-test-reporter/actions/workflows/nodejs.yml/badge.svg)](https://github.com/TectiveJK/drone-flight-test-reporter/actions/workflows/nodejs.yml)
 [![Repo Size](https://img.shields.io/github/repo-size/TectiveJK/drone-flight-test-reporter)](https://github.com/TectiveJK/drone-flight-test-reporter)
 
-Desktop prototype for drone flight-test logging, voice-assisted operator notes, structured report generation, Markdown export, and PDF export.
+Linux-first Electron desktop app for professional multi-flight drone flight-test reporting.
 
 ## Features
 
@@ -13,42 +13,54 @@ Desktop prototype for drone flight-test logging, voice-assisted operator notes, 
 - Jira ticket links and attachments
 - voice note transcription using browser speech recognition
 - professional report preview
-- save flight data as JSON
+- save and open reports as JSON in `~/DroneTestDay`
 - export report to Markdown or PDF
 
 ## Setup
 
-1. Open a terminal in `flight-test-reporter`
-2. Run:
+1. Open a terminal in `drone-flight-test-reporter`
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Start the app:
+3. Start the Electron app:
    ```bash
    npm start
    ```
 
 ## Desktop shortcut
 
-A shortcut can be created on your desktop pointing to the Electron binary and this folder. On Linux, you can use a `.desktop` file.
+On Linux, install a desktop icon that launches the Electron window only. It does **not** start a local web server or open a browser tab.
+
+```bash
+chmod +x scripts/install-desktop.sh scripts/launch-desktop.sh
+./scripts/install-desktop.sh
+```
+
+After that, double-click **Drone Flight Test Reporter** on the desktop, or run:
+
+```bash
+~/.local/bin/drone-flight-test-reporter
+```
+
+## Linux packages
+
+```bash
+npm run build:linux
+```
+
+This builds an AppImage and a `.deb` in `dist/`.
+
+## iOS / PWA
+
+A separate mobile/PWA app lives in `ios-app/`. See [ios-app/README.md](ios-app/README.md). It does not change this Electron desktop app.
 
 ## Notes
 
 - Voice transcription uses the browser `SpeechRecognition` API and may depend on platform support.
-- The app path should not contain spaces on Linux for Electron to launch correctly.
+- Saved reports default to the shared `~/DroneTestDay` folder.
 - This repository is a prototype. Future improvements can include better telemetry ingestion, screenshot/video attachment handling, and Jira issue automation.
 
 ## GitHub
 
 Repository: https://github.com/TectiveJK/drone-flight-test-reporter
-
-## Releases
-
-This project is currently a prototype with an initial release milestone.
-
-Future releases may include:
-
-- built installers for Linux, macOS, and Windows
-- screenshot/video attachment management
-- telemetry analytics and charts
-- Jira issue automation
