@@ -8,7 +8,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 ## Features
 
 - flight/mission metadata input
-- Test Objective Type options, including GNSS Denied and April Tag Landing test
+- choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
 - battery, firmware, mission, flight modes, telemetry, anomalies, operator notes
 - flight log and Wireshark capture support
 - Jira ticket links and attachments
