@@ -125,7 +125,19 @@
         </div>
 
         <div class="grid-2"><label>Flight Date & Time<input id="flightDateTime" type="datetime-local" /></label><label>Flight Duration<input id="duration" placeholder="12:34" /></label></div>
-        <label>Flight Modes<input id="flightModes" placeholder="Mission, RTL, Loiter" /></label>
+        <div class="equipment-field">
+          <span>Flight Modes</span>
+          <div id="flightModesList" class="equipment-list modes">
+            <label class="check"><input type="checkbox" name="flightModes" value="Mission" /> Mission</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Loiter" /> Loiter</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Posctl" /> Posctl</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Rtl" /> Rtl</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Efl" /> Efl</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Land" /> Land</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Home" /> Home</label>
+            <label class="check"><input type="checkbox" name="flightModes" value="Kill Switch" /> Kill Switch</label>
+          </div>
+        </div>
         <label>Mission Performed<textarea id="missionPerformed" rows="3" placeholder="Describe the mission performed during this flight."></textarea></label>
         <label>Anomalies / Bugs<textarea id="anomalies" rows="4" placeholder="Unexpected behaviour, failures, deviations..."></textarea></label>
         <label>Immediate Action<textarea id="immediateAction" rows="3" placeholder="RTL, abort, mode change, configuration change..."></textarea></label>

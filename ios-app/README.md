@@ -44,6 +44,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - Responsible and Robotics & Software fields
 - Detailed test objective
 - Flight result and mission information
+- Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview.
 - Anomalies and immediate action
 - Local draft persistence with `localStorage`
 - iOS Share Sheet via Web Share API where available
