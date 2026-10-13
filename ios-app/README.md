@@ -38,7 +38,6 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 
 - Multi-flight reports
 - UAV category selector
-- Specific aircraft/model
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
 - Responsible and Robotics & Software fields
