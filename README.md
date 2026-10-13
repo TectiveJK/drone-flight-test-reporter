@@ -7,7 +7,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 
 ## Features
 
-- flight/mission metadata: objective types, location, operator, UAV category and model, weather
+- flight/mission metadata: objective types, location, responsible, robotics & software, UAV category and model, weather
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
 - battery, mission performed, flight modes, anomalies, immediate action
 - flight log, Wireshark capture, and attachment files stay on the flight and appear under Evidence in the report preview, Markdown, and PDF

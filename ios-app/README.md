@@ -40,6 +40,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - UAV category selector
 - Specific aircraft/model
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
+- Responsible and Robotics & Software fields
 - Detailed test objective
 - Flight result and mission information
 - Anomalies and immediate action
