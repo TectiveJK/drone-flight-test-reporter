@@ -42,8 +42,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
 - Detailed test objective
 - Flight result and mission information
-- Telemetry, anomalies, expected behaviour, actions and findings
-- Operator timeline/notes
+- Anomalies and immediate action
 - Local draft persistence with `localStorage`
 - iOS Share Sheet via Web Share API where available
 - Browser print/export to PDF

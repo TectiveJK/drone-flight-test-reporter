@@ -95,12 +95,10 @@
         </div>
 
         <div class="grid-2"><label>Flight Date & Time<input id="flightDateTime" type="datetime-local" /></label><label>Battery ID<input id="batteryId" placeholder="BATT-132" /></label></div>
-        <div class="grid-3"><label>Mission ID<input id="missionId" placeholder="MISSION-01" /></label><label>Flight Duration<input id="duration" placeholder="12:34" /></label><label>Flight Modes<input id="flightModes" placeholder="Mission, RTL, Loiter" /></label></div>
+        <div class="grid-2"><label>Flight Duration<input id="duration" placeholder="12:34" /></label><label>Flight Modes<input id="flightModes" placeholder="Mission, RTL, Loiter" /></label></div>
         <label>Mission Performed<textarea id="missionPerformed" rows="3" placeholder="Describe the mission performed during this flight."></textarea></label>
-        <label>Telemetry Summary<textarea id="telemetrySummary" rows="3" placeholder="GPS, altitude, speed, battery, relevant telemetry..."></textarea></label>
-        <div class="grid-2"><label>Anomalies / Bugs<textarea id="anomalies" rows="4" placeholder="Unexpected behaviour, failures, deviations..."></textarea></label><label>Expected Behaviour<textarea id="expectedBehaviour" rows="4" placeholder="What should have happened?"></textarea></label></div>
-        <div class="grid-2"><label>Immediate Action<textarea id="immediateAction" rows="3" placeholder="RTL, abort, mode change, configuration change..."></textarea></label><label>Result / Findings<textarea id="findings" rows="3" placeholder="What was observed after the action?"></textarea></label></div>
-        <label>Operator Notes / Timeline<textarea id="operatorNotes" rows="6" placeholder="10:32 — Pre-flight checks completed&#10;10:35 — Takeoff&#10;10:39 — RTL triggered"></textarea></label>
+        <label>Anomalies / Bugs<textarea id="anomalies" rows="4" placeholder="Unexpected behaviour, failures, deviations..."></textarea></label>
+        <label>Immediate Action<textarea id="immediateAction" rows="3" placeholder="RTL, abort, mode change, configuration change..."></textarea></label>
 
         <div class="file-grid">
           <div class="file-card"><strong>Flight Log</strong><span id="flightLogPathDisplay">Not selected</span><button type="button" id="selectFlightLogButton" class="secondary">Select Log</button></div>
@@ -112,7 +110,7 @@
           <div id="attachmentList" class="attachments-list">No evidence attached.</div>
         </div>
 
-        <div class="toolbar"><button id="startVoiceButton" class="secondary">Start Voice Note</button><button id="stopVoiceButton" class="secondary" disabled>Stop Voice Note</button><span id="voiceStatus" class="status">Voice transcription idle.</span></div>
+        <div class="toolbar"><span id="voiceStatus" class="status"></span></div>
       </section>
 
       <section class="panel report-panel">
