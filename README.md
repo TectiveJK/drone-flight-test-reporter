@@ -10,7 +10,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 - flight/mission metadata: objective types, location, responsible, robotics & software, UAV category and model, weather
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview, Markdown, and PDF.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
-- battery, mission performed, flight modes, anomalies, immediate action
+- mission performed, flight modes, anomalies, immediate action
 - flight log, Wireshark capture, and attachment files stay on the flight and appear under Evidence in the report preview, Markdown, and PDF
 - Jira ticket links and attachments
 - professional report preview
