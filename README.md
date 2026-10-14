@@ -13,10 +13,12 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 - mission performed, anomalies, immediate action
 - Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview, Markdown, and PDF.
 - flight log, Wireshark capture, and attachment files stay on the flight and appear under Evidence in the report preview, Markdown, and PDF
+- **Export Report** saves a ZIP with the PDF plus the actual selected logs, captures, and attachments under `evidence/`, so a recipient can open those files. PDF-only export still writes a sibling `…-attachments` folder next to the PDF.
+- overall result ignores Pending flights; mixed Pass and Fail/Aborted concludes as PASS WITH OBSERVATIONS instead of FAIL
 - Jira ticket links and attachments
 - professional report preview
 - save and open reports as JSON in `~/DroneTestDay`
-- export report to Markdown or PDF
+- export report to Markdown or ZIP/PDF
 
 ## Setup
 
@@ -61,6 +63,7 @@ A separate mobile/PWA app lives in `ios-app/`. See [ios-app/README.md](ios-app/R
 
 - Saved reports default to the shared `~/DroneTestDay` folder.
 - Selecting a flight log, capture, or attachment updates the current flight immediately and regenerates the report preview.
+- Send the ZIP from **Export Report** when someone else needs to open the flight log. The PDF names the attached files; the originals are in `evidence/` inside the ZIP.
 - This repository is a prototype. Future improvements can include better telemetry ingestion, screenshot/video attachment handling, and Jira issue automation.
 
 ## GitHub

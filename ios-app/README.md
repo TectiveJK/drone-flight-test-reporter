@@ -42,13 +42,13 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
 - Responsible and Robotics & Software fields
 - Detailed test objective
-- Flight result and mission information
+- Flight result and mission information. Mixed Pass and Fail/Aborted flights conclude as PASS WITH OBSERVATIONS instead of FAIL.
 - Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview.
 - Anomalies and immediate action
 - Local draft persistence with `localStorage`
 - iOS Share Sheet via Web Share API where available
 - Browser print/export to PDF
 - Mobile-first light-grey/white/black UI
-- File selection for flight logs, Wireshark captures and attachments
+- File selection for flight logs, Wireshark captures and attachments (file names only; the desktop app is the sendable ZIP package with the actual files)
 
 The Linux Electron application remains separate and unchanged by this directory.
