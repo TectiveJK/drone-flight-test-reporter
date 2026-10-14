@@ -40,7 +40,6 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - UAV category selector
 - Specific aircraft/model
 - Test Objective Type selector
-- Detailed test objective
 - Flight result and mission information
 - Telemetry, anomalies, expected behaviour, actions and findings
 - Operator timeline/notes
