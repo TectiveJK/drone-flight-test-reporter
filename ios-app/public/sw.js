@@ -1,5 +1,6 @@
-const CACHE = 'drone-flight-test-reporter-v1';
-const APP_SHELL = ['/', '/manifest.webmanifest', '/icon.svg'];
+const CACHE = 'drone-flight-test-reporter-v2';
+const BASE = self.registration.scope;
+const APP_SHELL = [BASE, `${BASE}index.html`, `${BASE}manifest.webmanifest`, `${BASE}icon.svg`, `${BASE}apple-touch-icon.png`];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
@@ -15,5 +16,5 @@ self.addEventListener('fetch', event => {
     const copy = response.clone();
     caches.open(CACHE).then(cache => cache.put(event.request, copy));
     return response;
-  }).catch(() => caches.match('/'))));
+  }).catch(() => caches.match(BASE) || caches.match(`${BASE}index.html`))));
 });

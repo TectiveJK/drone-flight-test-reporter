@@ -59,6 +59,12 @@ This builds an AppImage and a `.deb` in `dist/`.
 
 A separate mobile/PWA app lives in `ios-app/`. See [ios-app/README.md](ios-app/README.md). It does not change this Electron desktop app.
 
+On an iPhone, open this address in **Safari** (not Chrome):
+
+https://tectivejk.github.io/drone-flight-test-reporter/
+
+Then tap **Share** → **Add to Home Screen**. The app icon appears on the home screen. Selected flight logs on iPhone are file names only; use the Linux desktop **Export Report** ZIP when someone needs the actual log files.
+
 ## Notes
 
 - Saved reports default to the shared `~/DroneTestDay` folder.

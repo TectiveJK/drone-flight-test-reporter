@@ -2,9 +2,20 @@
 
 This directory is a separate iOS-compatible application and does **not** modify the existing Electron/Linux application.
 
+## Install on iPhone
+
+The iOS app is published as a web app (PWA). It is **not** on the App Store.
+
+1. On the iPhone, open **Safari**.
+2. Go to https://tectivejk.github.io/drone-flight-test-reporter/
+3. Tap the **Share** button, then **Add to Home Screen**.
+4. Open **Flight Reporter** from the home screen.
+
+Selected flight logs on iPhone are file names only. Use the Linux desktop **Export Report** ZIP when a recipient needs the actual log files.
+
 ## Branch
 
-`feature/ios-version`
+`main` (PWA is deployed to GitHub Pages from `main`)
 
 ## Ubuntu development
 
