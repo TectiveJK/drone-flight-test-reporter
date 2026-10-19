@@ -48,6 +48,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 ## Current iOS features
 
 - Multi-flight reports
+- Test Report fields are stored per flight: car/van plate, Test Objective Types, Test Objective, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different.
 - UAV category selector
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.

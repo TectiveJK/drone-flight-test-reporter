@@ -7,7 +7,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 
 ## Features
 
-- flight/mission metadata: objective types, location, responsible, robotics & software, UAV category, weather
+- Test Report fields are stored per flight: Test Objective Types, Test Objective, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different. Each flight’s values appear in the report preview, Markdown, and PDF.
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview, Markdown, and PDF.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
 - mission performed, anomalies, immediate action
@@ -69,6 +69,7 @@ Then tap **Share** → **Add to Home Screen**. The app icon appears on the home 
 
 - Saved reports default to the shared `~/DroneTestDay` folder.
 - Selecting a flight log, capture, or attachment updates the current flight immediately and regenerates the report preview.
+- Test Report fields apply to the selected flight. Opening an older JSON report copies the old shared values onto each flight, then you can edit them independently.
 - Send the ZIP from **Export Report** when someone else needs to open the flight log. The PDF names the attached files; the originals are in `evidence/` inside the ZIP.
 - This repository is a prototype. Future improvements can include better telemetry ingestion, screenshot/video attachment handling, and Jira issue automation.
 
