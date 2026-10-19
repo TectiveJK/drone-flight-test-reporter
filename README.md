@@ -64,7 +64,9 @@ On an iPhone, open this address in **Safari** (not Chrome):
 
 https://tectivejk.github.io/drone-flight-test-reporter/
 
-Then tap **Share** → **Add to Home Screen**. The app icon appears on the home screen. Selected flight logs on iPhone are file names only; use the Linux desktop **Export Report** ZIP when someone needs the actual log files.
+Then tap **Share** → **Add to Home Screen**. The app icon appears on the home screen.
+
+If a home-screen icon stays blank, delete it, open the link in Safari again, then Add to Home Screen. Use Wi-Fi or mobile data the first time. Selected flight logs on iPhone are file names only; use the Linux desktop **Export Report** ZIP when someone needs the actual log files.
 
 ## Notes
 
