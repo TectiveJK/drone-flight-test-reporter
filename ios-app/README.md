@@ -50,13 +50,12 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 ## Current iOS features
 
 - Multi-flight reports
-- Test Report fields are stored per flight: car/van plate, Test Objective Types, Test Objective, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different. In the exported report those fields appear once at the top, not under every flight.
+- Test Report fields are stored per flight: car/van plate, Test Objective Types, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different. In the exported report those fields appear once at the top, not under every flight.
 - Conclusion field for the whole campaign. The written conclusion appears once at the end of the report, after all flights.
 - UAV category selector
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
 - Responsible and Robotics & Software fields
-- Detailed test objective
 - Flight result and mission information. Mixed Pass and Fail/Aborted flights conclude as PASS WITH OBSERVATIONS instead of FAIL.
 - Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview.
 - Anomalies and immediate action

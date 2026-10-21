@@ -7,7 +7,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 
 ## Features
 
-- Test Report fields are stored per flight: Test Objective Types, Test Objective, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different. In the exported report those fields appear once at the top, not under every flight. Each flight still shows its own date, duration, flight modes, mission, and evidence.
+- Test Report fields are stored per flight: Test Objective Types, Location, Responsible, Robotics & Software, UAV category, Equipment, and weather. Switch flights to enter different values; a new flight starts with a copy of the current flight so you only change what is different. In the exported report those fields appear once at the top, not under every flight. Each flight still shows its own date, duration, flight modes, mission, and evidence.
 - Conclusion field for the whole campaign. The written conclusion appears once at the end of the preview, Markdown, and PDF, after all flights.
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview, Markdown, and PDF.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
