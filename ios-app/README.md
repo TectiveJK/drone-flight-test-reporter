@@ -58,7 +58,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - Responsible and Robotics & Software fields
 - Flight result and mission information. Mixed Pass and Fail/Aborted flights conclude as PASS WITH OBSERVATIONS instead of FAIL.
 - Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview.
-- Anomalies and immediate action
+- Combined Anomalies / Bugs/Immediate Action field per flight
 - Local draft persistence with `localStorage`
 - iOS Share Sheet via Web Share API where available
 - Browser print/export to PDF
