@@ -57,7 +57,7 @@ Then select an iPhone device in Xcode and build/sign with an Apple account.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview.
 - Responsible and Robotics & Software fields
 - Flight result and mission information. Mixed Pass and Fail/Aborted flights conclude as PASS WITH OBSERVATIONS instead of FAIL.
-- Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview.
+- Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, Kill Switch, Manual-GNSS Denied, and Mission-GNSS Denied. Selected modes are stored per flight and appear in the report preview.
 - Combined Anomalies / Bugs/Immediate Action field per flight
 - Local draft persistence with `localStorage`
 - iOS Share Sheet via Web Share API where available

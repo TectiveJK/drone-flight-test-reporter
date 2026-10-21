@@ -12,7 +12,7 @@ Linux-first Electron desktop app for professional multi-flight drone flight-test
 - Equipment checklist for Refly/Skyhive units, rotator 25, and test batteries. Select as many items as needed (more than 10 is allowed); every selected item appears in the report preview, Markdown, and PDF.
 - choose up to two Test Objective Types (Type 1 and Type 2), including GNSS Denied and April Tag Landing test. Both appear in the report preview, Markdown, and PDF.
 - mission performed, and a combined Anomalies / Bugs/Immediate Action field per flight
-- Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, and Kill Switch. Selected modes are stored per flight and appear in the report preview, Markdown, and PDF.
+- Flight Modes checklist: Mission, Loiter, Posctl, Rtl, Efl, Land, Home, Kill Switch, Manual-GNSS Denied, and Mission-GNSS Denied. Selected modes are stored per flight and appear in the report preview, Markdown, and PDF.
 - flight log, Wireshark capture, and attachment files stay on the flight and appear under Evidence in the report preview, Markdown, and PDF
 - **Export Report** saves a ZIP with the PDF plus the actual selected logs, captures, and attachments under `evidence/`, so a recipient can open those files. PDF-only export still writes a sibling `…-attachments` folder next to the PDF.
 - overall result ignores Pending flights; mixed Pass and Fail/Aborted concludes as PASS WITH OBSERVATIONS instead of FAIL

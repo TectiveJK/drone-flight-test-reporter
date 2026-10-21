@@ -5,7 +5,7 @@ const objectiveTypes = ['Unit test','Integration test','Requirement verification
 const results = ['Pending','Pass','Pass with observations','Fail','Aborted'];
 const vehiclePlates = ['V-328-TL (Old)','V-960-VH (New)'];
 const equipmentList = ['refly-ibb-010','refly-ibb-015','refly-ibb-007','skyhive-sf-004','refly-sf-007','refly-sf-010','refly-sf-031','refly-sf-032','refly-sf-033','rotator 25','battery 96','battery 63','battery 3','battery 39','battery 99','battery 97','battery 118','battery 82','battery 93','battery 86','battery 43','battery 17','battery 62','Battery 12','Battery 107'];
-const flightModeList = ['Mission','Loiter','Posctl','Rtl','Efl','Land','Home','Kill Switch'];
+const flightModeList = ['Mission','Loiter','Posctl','Rtl','Efl','Land','Home','Kill Switch','Manual-GNSS Denied','Mission-GNSS Denied'];
 const key = 'dft-reporter-ios-draft-v1';
 
 const contextFields = ['vehiclePlate','objectiveType','objectiveType2','location','operator','observer','category','weather'];
